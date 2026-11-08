@@ -1,0 +1,131 @@
+{
+  "meta": {
+    "started_at": "2026-11-09T00:06:25",
+    "finished_at": "2026-11-09T00:08:08",
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash",
+    "temperature": 0.1,
+    "extra_body": {
+      "enable_thinking": false
+    },
+    "max_steps": 10,
+    "max_verify_retries": 2,
+    "tasks": 2,
+    "task_breakdown": "函数实现 2",
+    "runs_per_task": 3,
+    "total_runs": 18,
+    "configs": {
+      "v0": {
+        "tool_mode": "json",
+        "verify_mode": "rule",
+        "label": "原版：JSON 文本解析 + 规则验证"
+      },
+      "v1": {
+        "tool_mode": "native",
+        "verify_mode": "rule",
+        "label": "+ 原生 function calling"
+      },
+      "v2": {
+        "tool_mode": "native",
+        "verify_mode": "tests",
+        "label": "+ 测试驱动验证（完整版）"
+      }
+    }
+  },
+  "configs": {
+    "v0": {
+      "label": "原版：JSON 文本解析 + 规则验证",
+      "runs": 6,
+      "successes": 6,
+      "success_rate": 1.0,
+      "tasks": 2,
+      "tasks_solved_every_run": 2,
+      "tasks_solved_any_run": 2,
+      "avg_steps": 4.83,
+      "avg_llm_calls": 7.83,
+      "avg_prompt_tokens": 18264.67,
+      "avg_completion_tokens": 1750.33,
+      "avg_total_tokens": 20015.0,
+      "avg_wall_seconds": 19.52,
+      "format_errors": 0,
+      "no_tool_replies": 0,
+      "aborted_by_format": 0,
+      "verify_send_backs": 0,
+      "runs_rescued_by_verify": 0,
+      "errors": 0,
+      "stop_reasons": {
+        "finish": 6
+      },
+      "by_category": {
+        "函数实现": 1.0
+      },
+      "by_task": {
+        "fn03_find_zero": "3/3",
+        "fn04_decode_cyclic": "3/3"
+      }
+    },
+    "v1": {
+      "label": "+ 原生 function calling",
+      "runs": 6,
+      "successes": 5,
+      "success_rate": 0.8333,
+      "tasks": 2,
+      "tasks_solved_every_run": 1,
+      "tasks_solved_any_run": 2,
+      "avg_steps": 5.17,
+      "avg_llm_calls": 8.17,
+      "avg_prompt_tokens": 25311.5,
+      "avg_completion_tokens": 1854.17,
+      "avg_total_tokens": 27165.67,
+      "avg_wall_seconds": 21.3,
+      "format_errors": 0,
+      "no_tool_replies": 0,
+      "aborted_by_format": 0,
+      "verify_send_backs": 0,
+      "runs_rescued_by_verify": 0,
+      "errors": 0,
+      "stop_reasons": {
+        "finish": 5,
+        "max_steps": 1
+      },
+      "by_category": {
+        "函数实现": 0.8333
+      },
+      "by_task": {
+        "fn03_find_zero": "2/3",
+        "fn04_decode_cyclic": "3/3"
+      }
+    },
+    "v2": {
+      "label": "+ 测试驱动验证（完整版）",
+      "runs": 6,
+      "successes": 5,
+      "success_rate": 0.8333,
+      "tasks": 2,
+      "tasks_solved_every_run": 1,
+      "tasks_solved_any_run": 2,
+      "avg_steps": 5.33,
+      "avg_llm_calls": 8.33,
+      "avg_prompt_tokens": 26154.5,
+      "avg_completion_tokens": 1959.0,
+      "avg_total_tokens": 28113.5,
+      "avg_wall_seconds": 22.43,
+      "format_errors": 0,
+      "no_tool_replies": 0,
+      "aborted_by_format": 0,
+      "verify_send_backs": 0,
+      "runs_rescued_by_verify": 0,
+      "errors": 0,
+      "stop_reasons": {
+        "finish": 5,
+        "max_steps": 1
+      },
+      "by_category": {
+        "函数实现": 0.8333
+      },
+      "by_task": {
+        "fn03_find_zero": "2/3",
+        "fn04_decode_cyclic": "3/3"
+      }
+    }
+  }
+}

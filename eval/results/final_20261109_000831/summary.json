@@ -1,0 +1,191 @@
+{
+  "meta": {
+    "started_at": "2026-11-08T23:55:31",
+    "finished_at": "2026-11-09T00:08:08",
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash",
+    "temperature": 0.1,
+    "extra_body": {
+      "enable_thinking": false
+    },
+    "max_steps": 10,
+    "max_verify_retries": 2,
+    "tasks": 12,
+    "task_breakdown": "函数实现 4，功能实现 1，多处修复 1，大文件定位 1，字符串格式 1，数值精度 1，正则与转义 1，跨模块定位 1，逻辑错误 1",
+    "runs_per_task": 3,
+    "total_runs": 108,
+    "configs": {
+      "v0": {
+        "tool_mode": "json",
+        "verify_mode": "rule",
+        "label": "原版：JSON 文本解析 + 规则验证"
+      },
+      "v1": {
+        "tool_mode": "native",
+        "verify_mode": "rule",
+        "label": "+ 原生 function calling"
+      },
+      "v2": {
+        "tool_mode": "native",
+        "verify_mode": "tests",
+        "label": "+ 测试驱动验证（完整版）"
+      }
+    },
+    "note": "fn03_find_zero、fn04_decode_cyclic 在主评测后发现测试文件缺少导入（任务不可解），修复后单独重跑；其余任务来自主评测。两次使用相同的代码、模型和配置（主评测开始于 2026-11-08T23:55:31，重跑开始于 2026-11-09T00:06:25）。",
+    "sources": [
+      "eval/results/20261108_235531",
+      "eval/results/20261109_000625"
+    ]
+  },
+  "configs": {
+    "v0": {
+      "label": "原版：JSON 文本解析 + 规则验证",
+      "runs": 36,
+      "successes": 21,
+      "success_rate": 0.5833,
+      "tasks": 12,
+      "tasks_solved_every_run": 5,
+      "tasks_solved_any_run": 9,
+      "avg_steps": 3.28,
+      "avg_llm_calls": 6.28,
+      "avg_prompt_tokens": 18276.86,
+      "avg_completion_tokens": 1461.44,
+      "avg_total_tokens": 19738.31,
+      "avg_wall_seconds": 16.32,
+      "format_errors": 15,
+      "no_tool_replies": 0,
+      "aborted_by_format": 15,
+      "verify_send_backs": 0,
+      "runs_rescued_by_verify": 0,
+      "errors": 0,
+      "stop_reasons": {
+        "parse_error": 15,
+        "finish": 21
+      },
+      "by_category": {
+        "函数实现": 1.0,
+        "功能实现": 0.0,
+        "多处修复": 0.3333,
+        "大文件定位": 0.0,
+        "字符串格式": 1.0,
+        "数值精度": 0.6667,
+        "正则与转义": 0.6667,
+        "跨模块定位": 0.3333,
+        "逻辑错误": 0.0
+      },
+      "by_task": {
+        "fn01_make_palindrome": "3/3",
+        "fn02_remove_duplicates": "3/3",
+        "fn03_find_zero": "3/3",
+        "fn04_decode_cyclic": "3/3",
+        "ms01_discount_before_tax": "0/3",
+        "ms02_parser_regex": "2/3",
+        "ms03_invoice_format": "3/3",
+        "ms04_inventory_two_bugs": "1/3",
+        "ms05_money_rounding": "2/3",
+        "ms06_bulk_threshold": "1/3",
+        "ms07_bogo_coupon": "0/3",
+        "ms08_catalog_price_range": "0/3"
+      }
+    },
+    "v1": {
+      "label": "+ 原生 function calling",
+      "runs": 36,
+      "successes": 35,
+      "success_rate": 0.9722,
+      "tasks": 12,
+      "tasks_solved_every_run": 11,
+      "tasks_solved_any_run": 12,
+      "avg_steps": 4.44,
+      "avg_llm_calls": 7.44,
+      "avg_prompt_tokens": 30419.5,
+      "avg_completion_tokens": 1640.75,
+      "avg_total_tokens": 32060.25,
+      "avg_wall_seconds": 19.04,
+      "format_errors": 0,
+      "no_tool_replies": 0,
+      "aborted_by_format": 0,
+      "verify_send_backs": 0,
+      "runs_rescued_by_verify": 0,
+      "errors": 0,
+      "stop_reasons": {
+        "finish": 35,
+        "max_steps": 1
+      },
+      "by_category": {
+        "函数实现": 0.9167,
+        "功能实现": 1.0,
+        "多处修复": 1.0,
+        "大文件定位": 1.0,
+        "字符串格式": 1.0,
+        "数值精度": 1.0,
+        "正则与转义": 1.0,
+        "跨模块定位": 1.0,
+        "逻辑错误": 1.0
+      },
+      "by_task": {
+        "fn01_make_palindrome": "3/3",
+        "fn02_remove_duplicates": "3/3",
+        "fn03_find_zero": "2/3",
+        "fn04_decode_cyclic": "3/3",
+        "ms01_discount_before_tax": "3/3",
+        "ms02_parser_regex": "3/3",
+        "ms03_invoice_format": "3/3",
+        "ms04_inventory_two_bugs": "3/3",
+        "ms05_money_rounding": "3/3",
+        "ms06_bulk_threshold": "3/3",
+        "ms07_bogo_coupon": "3/3",
+        "ms08_catalog_price_range": "3/3"
+      }
+    },
+    "v2": {
+      "label": "+ 测试驱动验证（完整版）",
+      "runs": 36,
+      "successes": 35,
+      "success_rate": 0.9722,
+      "tasks": 12,
+      "tasks_solved_every_run": 11,
+      "tasks_solved_any_run": 12,
+      "avg_steps": 4.33,
+      "avg_llm_calls": 7.33,
+      "avg_prompt_tokens": 29216.89,
+      "avg_completion_tokens": 1606.81,
+      "avg_total_tokens": 30823.69,
+      "avg_wall_seconds": 18.98,
+      "format_errors": 0,
+      "no_tool_replies": 0,
+      "aborted_by_format": 0,
+      "verify_send_backs": 0,
+      "runs_rescued_by_verify": 0,
+      "errors": 0,
+      "stop_reasons": {
+        "finish": 35,
+        "max_steps": 1
+      },
+      "by_category": {
+        "函数实现": 0.9167,
+        "功能实现": 1.0,
+        "多处修复": 1.0,
+        "大文件定位": 1.0,
+        "字符串格式": 1.0,
+        "数值精度": 1.0,
+        "正则与转义": 1.0,
+        "跨模块定位": 1.0,
+        "逻辑错误": 1.0
+      },
+      "by_task": {
+        "fn01_make_palindrome": "3/3",
+        "fn02_remove_duplicates": "3/3",
+        "fn03_find_zero": "2/3",
+        "fn04_decode_cyclic": "3/3",
+        "ms01_discount_before_tax": "3/3",
+        "ms02_parser_regex": "3/3",
+        "ms03_invoice_format": "3/3",
+        "ms04_inventory_two_bugs": "3/3",
+        "ms05_money_rounding": "3/3",
+        "ms06_bulk_threshold": "3/3",
+        "ms07_bogo_coupon": "3/3",
+        "ms08_catalog_price_range": "3/3"
+      }
+    }
+  }
+}
