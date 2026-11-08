@@ -1,0 +1,16 @@
+[
+  {
+    "id": "sample_subtract_fix",
+    "repo": "examples/sample_repo",
+    "task": "修复 subtract 函数的错误实现，并运行测试",
+    "test_command": "pytest -q",
+    "success_hint": "pytest passes and subtract returns a - b"
+  },
+  {
+    "id": "sample_add_edge_test",
+    "repo": "examples/sample_repo",
+    "task": "检查 add 和 subtract 是否有基本测试覆盖，如果缺少负数用例则补充测试并运行 pytest",
+    "test_command": "pytest -q",
+    "success_hint": "pytest passes and tests cover negative numbers"
+  }
+]
