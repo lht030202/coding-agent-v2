@@ -3,8 +3,6 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 .pytest_cache/
-.mypy_cache/
-.ruff_cache/
 .venv/
 venv/
 
@@ -17,19 +15,7 @@ venv/
 traces/
 logs/
 *.log
-train.log
-
-# Model weights and caches
-models/
-.cache/
-outputs/
-*.safetensors
-*.bin
-*.pt
-*.pth
-
-# Generated batch results
-data/tasks/*_run_results.jsonl
+eval/results/*/traces/
 
 # OS / IDE
 .DS_Store

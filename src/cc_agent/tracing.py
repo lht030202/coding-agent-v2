@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -8,8 +9,9 @@ from typing import Any
 
 def create_trace_file(trace_dir: Path) -> Path:
     trace_dir.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    return trace_dir / f"agent_trace_{timestamp}.jsonl"
+    # Microseconds plus a random suffix keep parallel evaluation runs from sharing a file.
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    return trace_dir / f"agent_trace_{timestamp}_{uuid.uuid4().hex[:6]}.jsonl"
 
 
 def append_trace(trace_path: str | Path, event: str, payload: dict[str, Any]) -> None:

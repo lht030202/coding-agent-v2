@@ -1,28 +1,35 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 
 import typer
 from rich.console import Console
 from rich.panel import Panel
 
-from cc_agent.config import AgentConfig
-from cc_agent.data_builder import (
-    build_humaneval,
-    build_mbpp,
-    build_swebench_lite,
-    local_tasks_to_sft,
-    swebench_to_sft,
-    traces_to_sft,
-)
+from cc_agent.config import TOOL_MODES, VERIFY_MODES, AgentConfig
 from cc_agent.graph import run_agent
 from cc_agent.repo_indexer import RepoIndexer
-from cc_agent.task_runner import run_task_manifest
 from cc_agent.trace_stats import compute_trace_stats
 
-app = typer.Typer(help="Claude Code style repository agent built with LangGraph.")
+app = typer.Typer(help="Coding agent with native function calling, test-driven verification and an evaluation harness.")
 console = Console()
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _config(tool_mode: str | None = None, verify_mode: str | None = None, max_steps: int | None = None) -> AgentConfig:
+    config = AgentConfig.from_env(PROJECT_ROOT)
+    if tool_mode is not None:
+        if tool_mode not in TOOL_MODES:
+            raise typer.BadParameter(f"--tool-mode must be one of {TOOL_MODES}")
+        config = replace(config, tool_mode=tool_mode)
+    if verify_mode is not None:
+        if verify_mode not in VERIFY_MODES:
+            raise typer.BadParameter(f"--verify-mode must be one of {VERIFY_MODES}")
+        config = replace(config, verify_mode=verify_mode)
+    if max_steps is not None:
+        config = replace(config, max_steps=max_steps)
+    return config
 
 
 @app.command()
@@ -30,7 +37,7 @@ def index(
     repo: Path = typer.Option(..., "--repo", "-r", help="Target repository path."),
     query: str | None = typer.Option(None, "--query", "-q", help="Optional task query for lightweight retrieval."),
 ) -> None:
-    """Preview repository context without calling an LLM."""
+    """Preview the repository context the agent will see (no LLM call)."""
     snapshot = RepoIndexer(repo).snapshot(query=query)
     console.print(Panel(snapshot.tree, title="Repository Tree"))
     console.print(Panel(snapshot.symbols, title="Symbol Index"))
@@ -44,9 +51,8 @@ def retrieve(
     query: str = typer.Option(..., "--query", "-q", help="Search query."),
     top_k: int = typer.Option(5, "--top-k", help="Number of retrieved files."),
 ) -> None:
-    """Run dependency-free lexical retrieval over the repository."""
-    result = RepoIndexer(repo).retrieve(query=query, top_k=top_k)
-    console.print(Panel(result, title="Retrieved Context"))
+    """Run the dependency-free lexical retrieval over the repository."""
+    console.print(Panel(RepoIndexer(repo).retrieve(query=query, top_k=top_k), title="Retrieved Context"))
 
 
 @app.command()
@@ -54,13 +60,28 @@ def run(
     repo: Path = typer.Option(..., "--repo", "-r", help="Target repository path."),
     task: str = typer.Option(..., "--task", "-t", help="Natural language coding task."),
     test_command: str | None = typer.Option(None, "--test-command", help="Allowlisted test command, e.g. pytest -q."),
+    tool_mode: str | None = typer.Option(None, "--tool-mode", help="native (function calling) or json (original)."),
+    verify_mode: str | None = typer.Option(None, "--verify-mode", help="tests (run tests on finish) or rule (original)."),
+    max_steps: int | None = typer.Option(None, "--max-steps", help="Maximum act steps."),
 ) -> None:
-    """Run the full LangGraph coding agent."""
-    config = AgentConfig.from_env(PROJECT_ROOT)
+    """Run the coding agent on a repository."""
+    config = _config(tool_mode, verify_mode, max_steps)
     final_state = run_agent(repo, task, test_command, config=config, project_root=PROJECT_ROOT)
     console.print(Panel(final_state.get("plan", "No plan generated."), title="Plan"))
     console.print(Panel(final_state.get("review", "No review generated."), title="Review Subagent"))
     console.print(Panel(final_state.get("final_answer", "No final summary."), title="Final Summary"))
+    usage = final_state.get("usage", {})
+    counters = final_state.get("counters", {})
+    console.print(
+        f"[bold]Run:[/bold] mode={config.tool_mode}/{config.verify_mode} steps={final_state.get('steps')} "
+        f"stop={final_state.get('stop_reason')} tests_passed={final_state.get('tests_passed')} "
+        f"verify_retries={final_state.get('verify_retries', 0)}"
+    )
+    console.print(
+        f"[bold]Cost:[/bold] llm_calls={usage.get('llm_calls', 0)} prompt_tokens={usage.get('prompt_tokens', 0)} "
+        f"completion_tokens={usage.get('completion_tokens', 0)} llm_time={usage.get('llm_seconds', 0)}s "
+        f"format_errors={counters.get('format_errors', 0)}"
+    )
     console.print(f"[bold]Trace:[/bold] {final_state.get('trace_path')}")
 
 
@@ -68,93 +89,37 @@ def run(
 def stats(
     path: Path = typer.Option(PROJECT_ROOT / "traces", "--path", "-p", help="Trace file or trace directory."),
 ) -> None:
-    """Summarize JSONL traces into simple benchmark-style metrics."""
-    trace_stats = compute_trace_stats(path)
-    console.print(Panel(trace_stats.render(), title="Trace Stats"))
+    """Summarize JSONL traces: tokens, latency, tool usage and test results."""
+    console.print(Panel(compute_trace_stats(path).render(), title="Trace Stats"))
 
 
-@app.command("build-mbpp")
-def build_mbpp_command(
-    output_dir: Path = typer.Option(PROJECT_ROOT / "data", "--output-dir", "-o", help="Output data directory."),
-    limit: int = typer.Option(50, "--limit", "-n", help="Maximum records to build."),
-    split: str = typer.Option("test", "--split", help="Dataset split."),
+@app.command("eval")
+def eval_command(
+    configs: str = typer.Option("v0,v1,v2", "--configs", help="Comma-separated configurations to compare."),
+    runs: int = typer.Option(2, "--runs", help="Runs per task and configuration."),
+    workers: int = typer.Option(3, "--workers", help="Parallel runs."),
+    tasks: str = typer.Option("", "--tasks", help="Optional comma-separated task ids."),
+    manifest: Path = typer.Option(PROJECT_ROOT / "eval" / "tasks.json", "--manifest", help="Task manifest."),
+    output: Path = typer.Option(PROJECT_ROOT / "eval" / "results", "--output", help="Results directory."),
 ) -> None:
-    """Download MBPP and build runnable mini repos plus SFT JSONL."""
-    result = build_mbpp(output_dir=output_dir, limit=limit, split=split)
-    console.print(Panel(result.render(), title="MBPP Build Result"))
+    """Run the evaluation harness and write a report."""
+    from cc_agent.evaluation import run_evaluation
 
-
-@app.command("build-humaneval")
-def build_humaneval_command(
-    output_dir: Path = typer.Option(PROJECT_ROOT / "data", "--output-dir", "-o", help="Output data directory."),
-    limit: int = typer.Option(50, "--limit", "-n", help="Maximum records to build."),
-    split: str = typer.Option("test", "--split", help="Dataset split."),
-) -> None:
-    """Download HumanEval and build runnable mini repos plus SFT JSONL."""
-    result = build_humaneval(output_dir=output_dir, limit=limit, split=split)
-    console.print(Panel(result.render(), title="HumanEval Build Result"))
-
-
-@app.command("build-swebench-lite")
-def build_swebench_lite_command(
-    output_dir: Path = typer.Option(PROJECT_ROOT / "data", "--output-dir", "-o", help="Output data directory."),
-    limit: int = typer.Option(50, "--limit", "-n", help="Maximum records to build."),
-    split: str = typer.Option("test", "--split", help="Dataset split."),
-) -> None:
-    """Download SWE-bench Lite metadata and build task manifest."""
-    result = build_swebench_lite(output_dir=output_dir, limit=limit, split=split)
-    console.print(Panel(result.render(), title="SWE-bench Lite Build Result"))
-
-
-@app.command("traces-to-sft")
-def traces_to_sft_command(
-    trace_path: Path = typer.Option(PROJECT_ROOT / "traces", "--trace-path", "-t", help="Trace file or directory."),
-    output_path: Path = typer.Option(PROJECT_ROOT / "data" / "sft" / "agent_traces_sft.jsonl", "--output-path", "-o"),
-) -> None:
-    """Convert successful tool calls in JSONL traces into SFT samples."""
-    count = traces_to_sft(trace_path=trace_path, output_path=output_path)
-    console.print(Panel(f"Wrote {count} SFT samples to {output_path}", title="Trace SFT Result"))
-
-
-@app.command("swebench-to-sft")
-def swebench_to_sft_command(
-    input_path: Path = typer.Option(PROJECT_ROOT / "data" / "tasks" / "swebench_lite_tasks.jsonl", "--input", "-i"),
-    output_path: Path = typer.Option(PROJECT_ROOT / "data" / "sft" / "swebench_lite_patch_sft.jsonl", "--output", "-o"),
-    mode: str = typer.Option("patch", "--mode", help="patch or plan"),
-) -> None:
-    """Convert SWE-bench Lite task manifest into patch/plan SFT data."""
-    count = swebench_to_sft(input_path=input_path, output_path=output_path, mode=mode)
-    console.print(Panel(f"Wrote {count} SWE-bench SFT samples to {output_path}", title="SWE-bench SFT Result"))
-
-
-@app.command("local-tasks-to-sft")
-def local_tasks_to_sft_command(
-    input_path: Path = typer.Option(..., "--input", "-i", help="Local task manifest JSONL."),
-    output_path: Path = typer.Option(PROJECT_ROOT / "data" / "sft" / "local_tasks_strategy_sft.jsonl", "--output", "-o"),
-) -> None:
-    """Convert local runnable tasks into high-level strategy SFT samples."""
-    count = local_tasks_to_sft(input_path=input_path, output_path=output_path)
-    console.print(Panel(f"Wrote {count} local-task SFT samples to {output_path}", title="Local Task SFT Result"))
-
-
-@app.command("run-tasks")
-def run_tasks_command(
-    manifest_path: Path = typer.Option(..., "--manifest", "-m", help="Task manifest JSONL."),
-    limit: int = typer.Option(10, "--limit", "-n", help="Maximum runnable local tasks."),
-    dry_run: bool = typer.Option(False, "--dry-run", help="Only validate runnable tasks; do not call the Agent."),
-    output_path: Path | None = typer.Option(None, "--output", "-o", help="Run result JSONL path."),
-) -> None:
-    """Run local task manifests through the Agent, or dry-run validate them."""
-    config = AgentConfig.from_env(PROJECT_ROOT)
-    result = run_task_manifest(
-        manifest_path=manifest_path,
-        config=config,
+    config_names = [name.strip() for name in configs.split(",") if name.strip()]
+    task_ids = [task_id.strip() for task_id in tasks.split(",") if task_id.strip()] or None
+    results_dir, report = run_evaluation(
+        manifest=manifest,
+        config_names=config_names,
+        runs=runs,
+        workers=workers,
+        task_ids=task_ids,
+        output_root=output,
+        base_config=AgentConfig.from_env(PROJECT_ROOT),
         project_root=PROJECT_ROOT,
-        limit=limit,
-        dry_run=dry_run,
-        output_path=output_path,
+        progress=lambda message: console.print(message, markup=False, highlight=False),
     )
-    console.print(Panel(result.render(), title="Task Run Result"))
+    console.print(f"Report: {results_dir / 'report.md'}", markup=False)
+    console.print(report, markup=False, highlight=False)
 
 
 if __name__ == "__main__":

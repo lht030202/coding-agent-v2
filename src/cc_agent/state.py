@@ -23,6 +23,14 @@ class AgentState(TypedDict, total=False):
     max_steps: int
     last_action: dict[str, Any]
     tool_history: list[ToolRecord]
+    # Native tool mode keeps the whole conversation: assistant tool calls paired with tool results.
+    messages: list[dict[str, Any]]
+    no_tool_streak: int
+    verify_retries: int
+    tests_passed: bool | None
+    stop_reason: str | None
+    usage: dict[str, Any]
+    counters: dict[str, int]
     review: str
     final_answer: str
     done: bool

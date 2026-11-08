@@ -1,7 +1,7 @@
 [project]
-name = "coding-agent-sft-lab"
-version = "0.1.0"
-description = "A lightweight code-repository agent and SFT training pipeline for agentic coding experiments."
+name = "coding-agent-v2"
+version = "0.2.0"
+description = "A LangGraph coding agent with native function calling, test-driven verification and a reproducible evaluation harness."
 requires-python = ">=3.10"
 dependencies = [
   "langgraph>=0.2.0",
@@ -12,15 +12,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-data = [
-  "datasets>=2.19.0",
-]
-sft = [
-  "huggingface_hub>=0.23.0",
-  "transformers>=4.40.0",
-  "peft>=0.11.0",
-  "torch>=2.1.0",
-]
 dev = [
   "pytest>=8.0.0",
 ]
@@ -30,3 +21,8 @@ cc-agent = "cc_agent.cli:app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-p no:cacheprovider"
