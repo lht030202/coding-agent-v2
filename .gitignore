@@ -11,6 +11,9 @@ venv/
 .env.*
 !.env.example
 
+# Personal study notes, kept locally
+docs/tutorial/
+
 # Runtime artifacts
 traces/
 logs/
