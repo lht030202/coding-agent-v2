@@ -42,3 +42,12 @@ def test_compaction_shrinks_old_tool_outputs_without_dropping_messages():
 def test_compaction_is_a_noop_under_budget():
     messages = [{"role": "user", "content": "hi"}]
     assert compact_messages(messages, budget_chars=1000) == (messages, 0)
+
+
+def test_compacted_messages_are_left_alone_on_later_steps():
+    # The native loop stores the compacted list back, so the next step sees the previews again.
+    once, first = compact_messages(_conversation(10), budget_chars=1, keep_recent=4)
+    twice, second = compact_messages(once, budget_chars=1, keep_recent=4)
+    assert first == 8  # every tool result before the last four messages
+    assert second == 0
+    assert twice == once  # previews do not pile up compaction notes

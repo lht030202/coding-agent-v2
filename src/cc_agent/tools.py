@@ -21,6 +21,10 @@ from cc_agent.hooks import (
 from cc_agent.repo_indexer import RepoIndexer
 
 SKIP_DIRS = {".git", "__pycache__", "node_modules", ".pytest_cache", ".venv", "venv"}
+# read_file stays this far below the agent's output budget, so its paging note fits and the
+# context layer never has to cut the middle out of a file.
+READ_NOTE_RESERVE = 400
+DEFAULT_READ_LIMIT = 12000  # only used when no output budget is configured
 
 
 @dataclass(frozen=True)
@@ -59,12 +63,21 @@ def _integer(description: str) -> dict[str, str]:
 
 
 # Descriptions mirror the original prompt text, so the ablation compares protocols, not wording.
+# Exception: read_file's line range, added after the 2026-11-09 evaluation (see docs/改进说明.md).
 TOOL_SPECS: tuple[ToolSpec, ...] = (
     ToolSpec("list_files", "List repository files under path.", _object({"path": _string("Directory relative to the repository root, default '.'")}, [])),
     ToolSpec(
         "read_file",
-        "Read a text file.",
-        _object({"path": _string("File path relative to the repository root"), "limit": _integer("Maximum characters to return, default 12000")}, ["path"]),
+        "Read a text file, or a line range of it.",
+        _object(
+            {
+                "path": _string("File path relative to the repository root"),
+                "start_line": _integer("First line to read (1-based), e.g. a line number from grep; default 1"),
+                "end_line": _integer("Last line to read (inclusive); default end of file"),
+                "limit": _integer("Maximum characters to return; long files come back page by page"),
+            },
+            ["path"],
+        ),
     ),
     ToolSpec(
         "grep",
@@ -99,10 +112,12 @@ TOOL_SPECS: tuple[ToolSpec, ...] = (
 )
 
 # The original JSON-mode prompt, kept verbatim for the baseline configuration.
+# Same single exception as TOOL_SPECS, read_file's line range: without it the baseline never used
+# start_line, as its history keeps 1800 characters per output and cuts off the paging note.
 LEGACY_TOOL_DESCRIPTIONS = """
 Available tools:
 - list_files {"path": "."}: list repository files under path.
-- read_file {"path": "relative/path.py"}: read a text file.
+- read_file {"path": "relative/path.py"}: read a text file. Optional "start_line" and "end_line" (1-based, inclusive) read a line range, e.g. around a line number from grep; long files come back page by page.
 - grep {"pattern": "regex", "path": "."}: search text files with a regex.
 - retrieve_context {"query": "bug or symbol name", "top_k": 5}: retrieve relevant code snippets with a lightweight lexical index.
 - replace_in_file {"path": "relative/path.py", "old": "exact old text", "new": "replacement text"}: make a focused exact replacement.
@@ -136,9 +151,10 @@ def validate_arguments(spec: ToolSpec, arguments: dict[str, Any]) -> tuple[dict[
 
 
 class RepoTools:
-    def __init__(self, repo_path: str | Path, timeout: int = 60):
+    def __init__(self, repo_path: str | Path, timeout: int = 60, max_output_chars: int = 6000):
         self.repo_root = Path(repo_path).resolve()
         self.timeout = timeout
+        self.max_output_chars = max_output_chars
         self._specs = {spec.name: spec for spec in TOOL_SPECS}
         self._handlers: dict[str, Callable[[dict[str, Any]], ToolResult]] = {
             "list_files": self._list_files,
@@ -208,10 +224,31 @@ class RepoTools:
         if not path.exists() or not path.is_file():
             return ToolResult(False, f"File not found: {arguments['path']}")
         text = path.read_text(encoding="utf-8", errors="replace")
-        limit = int(arguments.get("limit", 12000))
-        if len(text) > limit:
-            text = text[:limit] + f"\n... file truncated ({len(text)} characters in total; pass a larger limit to read more)"
-        return ToolResult(True, text)
+        lines = text.splitlines(keepends=True)
+        total = len(lines)
+        start = max(1, int(arguments.get("start_line", 1)))
+        if total and start > total:
+            return ToolResult(False, f"start_line {start} is past the end of the file ({total} lines).")
+        end = min(total, max(start, int(arguments.get("end_line", total))))
+        selected = "".join(lines[start - 1 : end])
+
+        # Stay inside the agent's output budget; otherwise the context layer would cut the middle out.
+        cap = max(500, self.max_output_chars - READ_NOTE_RESERVE) if self.max_output_chars > 0 else None
+        requested = int(arguments.get("limit", cap or DEFAULT_READ_LIMIT))
+        budget = max(1, min(requested, cap) if cap else requested)
+        ranged = "start_line" in arguments or "end_line" in arguments
+        if len(selected) <= budget:
+            return ToolResult(True, f"[lines {start}-{end} of {total}]\n{selected}" if ranged else selected)
+
+        cut = selected.rfind("\n", 0, budget) + 1  # stop at a line boundary
+        if cut == 0:
+            return ToolResult(True, f"{selected[:budget]}\n... [line {start} is longer than {budget} characters; use grep to find what you need]")
+        shown_end = start + selected[:cut].count("\n") - 1
+        return ToolResult(
+            True,
+            f"{selected[:cut]}... [showing lines {start}-{shown_end} of {total}; {len(text)} characters in the file] "
+            f"Read on with start_line={shown_end + 1}, or use grep to find the lines you need.",
+        )
 
     def _grep(self, arguments: dict[str, Any]) -> ToolResult:
         pattern = arguments.get("pattern", "")

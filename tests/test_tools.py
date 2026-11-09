@@ -1,4 +1,4 @@
-from cc_agent.tools import TOOL_SPECS, RepoTools, validate_arguments
+from cc_agent.tools import LEGACY_TOOL_DESCRIPTIONS, TOOL_SPECS, RepoTools, validate_arguments
 
 
 def test_openai_schemas_cover_every_tool(tmp_path):
@@ -54,8 +54,44 @@ def test_run_tests_does_not_leak_api_keys(buggy_repo, monkeypatch):
     assert result.ok, result.output
 
 
-def test_read_file_truncation_tells_how_to_read_more(buggy_repo):
+def test_overlong_single_line_is_cut_with_a_hint(buggy_repo):
     (buggy_repo / "big.py").write_text("x" * 50)
     result = RepoTools(buggy_repo).run("read_file", {"path": "big.py", "limit": 10})
     assert result.ok
-    assert "pass a larger limit" in result.output
+    assert result.output.startswith("x" * 10 + "\n")
+    assert "use grep" in result.output
+
+
+def test_read_file_reads_a_line_range(buggy_repo):
+    (buggy_repo / "big.py").write_text("".join(f"line {n}\n" for n in range(1, 101)))
+    result = RepoTools(buggy_repo).run("read_file", {"path": "big.py", "start_line": "40", "end_line": 42})
+    assert result.output == "[lines 40-42 of 100]\nline 40\nline 41\nline 42\n"
+    properties = next(spec for spec in TOOL_SPECS if spec.name == "read_file").parameters["properties"]
+    assert {"start_line", "end_line"} <= set(properties)
+
+
+def test_long_files_are_paged_inside_the_output_budget(buggy_repo):
+    (buggy_repo / "big.py").write_text("".join(f"value_{n} = {n}\n" for n in range(1, 2001)))
+    tools = RepoTools(buggy_repo, max_output_chars=1000)
+    first = tools.run("read_file", {"path": "big.py", "limit": 50000})
+    assert len(first.output) <= 1000  # short enough that the context layer never cuts its middle out
+    assert first.output.startswith("value_1 = 1\n")
+    next_line = int(first.output.split("start_line=")[1].split(",")[0])
+    second = tools.run("read_file", {"path": "big.py", "start_line": next_line})
+    assert second.output.startswith(f"value_{next_line} = {next_line}\n")
+    assert "Read on with start_line=" in second.output
+
+
+def test_start_line_past_the_end_is_an_observation(buggy_repo):
+    result = RepoTools(buggy_repo).run("read_file", {"path": "calculator.py", "start_line": 999})
+    assert not result.ok
+    assert "past the end" in result.output
+
+
+def test_both_protocols_document_the_line_range():
+    # When only the schema had start_line, the text-protocol baseline never used it (2026-11-09 evaluation).
+    schema = next(spec for spec in TOOL_SPECS if spec.name == "read_file").parameters["properties"]
+    text = next(line for line in LEGACY_TOOL_DESCRIPTIONS.splitlines() if line.startswith("- read_file "))
+    for name in ("start_line", "end_line"):
+        assert name in schema
+        assert f'"{name}"' in text

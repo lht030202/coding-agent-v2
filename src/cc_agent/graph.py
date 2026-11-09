@@ -151,7 +151,9 @@ class CodingAgentGraph:
     # ------------------------------------------------------------------ helpers
 
     def _tools(self, state: AgentState) -> RepoTools:
-        return RepoTools(state["repo_path"], timeout=self.config.command_timeout)
+        return RepoTools(
+            state["repo_path"], timeout=self.config.command_timeout, max_output_chars=self.config.tool_output_chars
+        )
 
     def _max_steps(self, state: AgentState) -> int:
         return int(state.get("max_steps", self.config.max_steps))
