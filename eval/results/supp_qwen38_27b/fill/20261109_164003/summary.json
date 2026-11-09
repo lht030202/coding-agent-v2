@@ -1,0 +1,91 @@
+{
+  "meta": {
+    "started_at": "2026-11-09T16:40:03",
+    "finished_at": "2026-11-09T16:42:18",
+    "model": "Qwen/Qwen3.8-27B",
+    "temperature": 0.1,
+    "extra_body": {
+      "enable_thinking": false
+    },
+    "max_steps": 10,
+    "max_verify_retries": 2,
+    "tasks": 1,
+    "task_breakdown": "功能实现 1",
+    "runs_per_task": 2,
+    "total_runs": 4,
+    "configs": {
+      "v0": {
+        "tool_mode": "json",
+        "verify_mode": "rule",
+        "label": "原版：JSON 文本解析 + 规则验证"
+      },
+      "v1": {
+        "tool_mode": "native",
+        "verify_mode": "rule",
+        "label": "+ 原生 function calling"
+      }
+    }
+  },
+  "configs": {
+    "v0": {
+      "label": "原版：JSON 文本解析 + 规则验证",
+      "runs": 2,
+      "successes": 2,
+      "success_rate": 1.0,
+      "tasks": 1,
+      "tasks_solved_every_run": 1,
+      "tasks_solved_any_run": 1,
+      "avg_steps": 3.5,
+      "avg_llm_calls": 6.5,
+      "avg_prompt_tokens": 25838.5,
+      "avg_completion_tokens": 1377.0,
+      "avg_total_tokens": 27215.5,
+      "avg_wall_seconds": 48.86,
+      "format_errors": 0,
+      "no_tool_replies": 0,
+      "aborted_by_format": 0,
+      "verify_send_backs": 0,
+      "runs_rescued_by_verify": 0,
+      "errors": 0,
+      "stop_reasons": {
+        "finish": 2
+      },
+      "by_category": {
+        "功能实现": 1.0
+      },
+      "by_task": {
+        "ms07_bogo_coupon": "2/2"
+      }
+    },
+    "v1": {
+      "label": "+ 原生 function calling",
+      "runs": 2,
+      "successes": 2,
+      "success_rate": 1.0,
+      "tasks": 1,
+      "tasks_solved_every_run": 1,
+      "tasks_solved_any_run": 1,
+      "avg_steps": 4.0,
+      "avg_llm_calls": 7.0,
+      "avg_prompt_tokens": 34505.0,
+      "avg_completion_tokens": 1417.5,
+      "avg_total_tokens": 35922.5,
+      "avg_wall_seconds": 67.03,
+      "format_errors": 0,
+      "no_tool_replies": 0,
+      "aborted_by_format": 0,
+      "verify_send_backs": 0,
+      "runs_rescued_by_verify": 0,
+      "errors": 0,
+      "stop_reasons": {
+        "finish": 2
+      },
+      "by_category": {
+        "功能实现": 1.0
+      },
+      "by_task": {
+        "ms07_bogo_coupon": "2/2"
+      }
+    }
+  }
+}

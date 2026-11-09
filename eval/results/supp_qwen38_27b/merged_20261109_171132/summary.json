@@ -1,0 +1,195 @@
+{
+  "meta": {
+    "started_at": "2026-11-09T15:32:10",
+    "finished_at": "2026-11-09T17:11:11",
+    "model": "Qwen/Qwen3.8-27B",
+    "temperature": 0.1,
+    "extra_body": {
+      "enable_thinking": false
+    },
+    "max_steps": 10,
+    "max_verify_retries": 2,
+    "tasks": 12,
+    "task_breakdown": "函数实现 4，功能实现 1，多处修复 1，大文件定位 1，字符串格式 1，数值精度 1，正则与转义 1，跨模块定位 1，逻辑错误 1",
+    "runs_per_task": 3,
+    "total_runs": 108,
+    "configs": {
+      "v0": {
+        "tool_mode": "json",
+        "verify_mode": "rule",
+        "label": "原版：JSON 文本解析 + 规则验证"
+      },
+      "v1": {
+        "tool_mode": "native",
+        "verify_mode": "rule",
+        "label": "+ 原生 function calling"
+      },
+      "v2": {
+        "tool_mode": "native",
+        "verify_mode": "tests",
+        "label": "+ 测试驱动验证（完整版）"
+      }
+    },
+    "note": "这轮评测开始于 2026-11-09T15:32:10，中途因接口错误中断：APIStatusError: Error code: 402 - Sorry, your account balance is insufficient（88 次）。已完成的 20 次运行保留；缺失的 88 次用相同的代码、模型和配置分 4 批补跑后合并。",
+    "sources": [
+      "eval/results/supp_qwen38_27b/20261109_153210",
+      "eval/results/supp_qwen38_27b/fill/20261109_160202",
+      "eval/results/supp_qwen38_27b/fill/20261109_164003",
+      "eval/results/supp_qwen38_27b/fill/20261109_164219",
+      "eval/results/supp_qwen38_27b/fill/20261109_164448"
+    ]
+  },
+  "configs": {
+    "v0": {
+      "label": "原版：JSON 文本解析 + 规则验证",
+      "runs": 36,
+      "successes": 33,
+      "success_rate": 0.9167,
+      "tasks": 12,
+      "tasks_solved_every_run": 11,
+      "tasks_solved_any_run": 11,
+      "avg_steps": 4.92,
+      "avg_llm_calls": 7.92,
+      "avg_prompt_tokens": 26629.81,
+      "avg_completion_tokens": 1315.28,
+      "avg_total_tokens": 27945.08,
+      "avg_wall_seconds": 100.57,
+      "format_errors": 1,
+      "no_tool_replies": 0,
+      "aborted_by_format": 1,
+      "verify_send_backs": 0,
+      "runs_rescued_by_verify": 0,
+      "errors": 0,
+      "stop_reasons": {
+        "max_steps": 5,
+        "finish": 30,
+        "parse_error": 1
+      },
+      "by_category": {
+        "函数实现": 0.75,
+        "功能实现": 1.0,
+        "多处修复": 1.0,
+        "大文件定位": 1.0,
+        "字符串格式": 1.0,
+        "数值精度": 1.0,
+        "正则与转义": 1.0,
+        "跨模块定位": 1.0,
+        "逻辑错误": 1.0
+      },
+      "by_task": {
+        "fn01_make_palindrome": "0/3",
+        "fn02_remove_duplicates": "3/3",
+        "fn03_find_zero": "3/3",
+        "fn04_decode_cyclic": "3/3",
+        "ms01_discount_before_tax": "3/3",
+        "ms02_parser_regex": "3/3",
+        "ms03_invoice_format": "3/3",
+        "ms04_inventory_two_bugs": "3/3",
+        "ms05_money_rounding": "3/3",
+        "ms06_bulk_threshold": "3/3",
+        "ms07_bogo_coupon": "3/3",
+        "ms08_catalog_price_range": "3/3"
+      }
+    },
+    "v1": {
+      "label": "+ 原生 function calling",
+      "runs": 36,
+      "successes": 34,
+      "success_rate": 0.9444,
+      "tasks": 12,
+      "tasks_solved_every_run": 11,
+      "tasks_solved_any_run": 12,
+      "avg_steps": 4.22,
+      "avg_llm_calls": 7.22,
+      "avg_prompt_tokens": 26184.19,
+      "avg_completion_tokens": 1132.5,
+      "avg_total_tokens": 27316.69,
+      "avg_wall_seconds": 83.7,
+      "format_errors": 0,
+      "no_tool_replies": 0,
+      "aborted_by_format": 0,
+      "verify_send_backs": 0,
+      "runs_rescued_by_verify": 0,
+      "errors": 0,
+      "stop_reasons": {
+        "finish": 34,
+        "max_steps": 2
+      },
+      "by_category": {
+        "函数实现": 0.8333,
+        "功能实现": 1.0,
+        "多处修复": 1.0,
+        "大文件定位": 1.0,
+        "字符串格式": 1.0,
+        "数值精度": 1.0,
+        "正则与转义": 1.0,
+        "跨模块定位": 1.0,
+        "逻辑错误": 1.0
+      },
+      "by_task": {
+        "fn01_make_palindrome": "1/3",
+        "fn02_remove_duplicates": "3/3",
+        "fn03_find_zero": "3/3",
+        "fn04_decode_cyclic": "3/3",
+        "ms01_discount_before_tax": "3/3",
+        "ms02_parser_regex": "3/3",
+        "ms03_invoice_format": "3/3",
+        "ms04_inventory_two_bugs": "3/3",
+        "ms05_money_rounding": "3/3",
+        "ms06_bulk_threshold": "3/3",
+        "ms07_bogo_coupon": "3/3",
+        "ms08_catalog_price_range": "3/3"
+      }
+    },
+    "v2": {
+      "label": "+ 测试驱动验证（完整版）",
+      "runs": 36,
+      "successes": 33,
+      "success_rate": 0.9167,
+      "tasks": 12,
+      "tasks_solved_every_run": 10,
+      "tasks_solved_any_run": 12,
+      "avg_steps": 4.44,
+      "avg_llm_calls": 7.44,
+      "avg_prompt_tokens": 28257.56,
+      "avg_completion_tokens": 1218.86,
+      "avg_total_tokens": 29476.42,
+      "avg_wall_seconds": 93.27,
+      "format_errors": 0,
+      "no_tool_replies": 0,
+      "aborted_by_format": 0,
+      "verify_send_backs": 0,
+      "runs_rescued_by_verify": 0,
+      "errors": 0,
+      "stop_reasons": {
+        "finish": 33,
+        "max_steps": 3
+      },
+      "by_category": {
+        "函数实现": 0.75,
+        "功能实现": 1.0,
+        "多处修复": 1.0,
+        "大文件定位": 1.0,
+        "字符串格式": 1.0,
+        "数值精度": 1.0,
+        "正则与转义": 1.0,
+        "跨模块定位": 1.0,
+        "逻辑错误": 1.0
+      },
+      "by_task": {
+        "fn01_make_palindrome": "1/3",
+        "fn02_remove_duplicates": "3/3",
+        "fn03_find_zero": "2/3",
+        "fn04_decode_cyclic": "3/3",
+        "ms01_discount_before_tax": "3/3",
+        "ms02_parser_regex": "3/3",
+        "ms03_invoice_format": "3/3",
+        "ms04_inventory_two_bugs": "3/3",
+        "ms05_money_rounding": "3/3",
+        "ms06_bulk_threshold": "3/3",
+        "ms07_bogo_coupon": "3/3",
+        "ms08_catalog_price_range": "3/3"
+      }
+    }
+  }
+}

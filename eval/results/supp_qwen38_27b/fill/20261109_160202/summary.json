@@ -1,0 +1,156 @@
+{
+  "meta": {
+    "started_at": "2026-11-09T16:02:02",
+    "finished_at": "2026-11-09T16:40:02",
+    "model": "Qwen/Qwen3.8-27B",
+    "temperature": 0.1,
+    "extra_body": {
+      "enable_thinking": false
+    },
+    "max_steps": 10,
+    "max_verify_retries": 2,
+    "tasks": 6,
+    "task_breakdown": "多处修复 1，字符串格式 1，数值精度 1，正则与转义 1，跨模块定位 1，逻辑错误 1",
+    "runs_per_task": 2,
+    "total_runs": 36,
+    "configs": {
+      "v0": {
+        "tool_mode": "json",
+        "verify_mode": "rule",
+        "label": "原版：JSON 文本解析 + 规则验证"
+      },
+      "v1": {
+        "tool_mode": "native",
+        "verify_mode": "rule",
+        "label": "+ 原生 function calling"
+      },
+      "v2": {
+        "tool_mode": "native",
+        "verify_mode": "tests",
+        "label": "+ 测试驱动验证（完整版）"
+      }
+    }
+  },
+  "configs": {
+    "v0": {
+      "label": "原版：JSON 文本解析 + 规则验证",
+      "runs": 12,
+      "successes": 12,
+      "success_rate": 1.0,
+      "tasks": 6,
+      "tasks_solved_every_run": 6,
+      "tasks_solved_any_run": 6,
+      "avg_steps": 4.17,
+      "avg_llm_calls": 7.17,
+      "avg_prompt_tokens": 26299.92,
+      "avg_completion_tokens": 1018.92,
+      "avg_total_tokens": 27318.83,
+      "avg_wall_seconds": 139.31,
+      "format_errors": 0,
+      "no_tool_replies": 0,
+      "aborted_by_format": 0,
+      "verify_send_backs": 0,
+      "runs_rescued_by_verify": 0,
+      "errors": 0,
+      "stop_reasons": {
+        "finish": 12
+      },
+      "by_category": {
+        "多处修复": 1.0,
+        "字符串格式": 1.0,
+        "数值精度": 1.0,
+        "正则与转义": 1.0,
+        "跨模块定位": 1.0,
+        "逻辑错误": 1.0
+      },
+      "by_task": {
+        "ms01_discount_before_tax": "2/2",
+        "ms02_parser_regex": "2/2",
+        "ms03_invoice_format": "2/2",
+        "ms04_inventory_two_bugs": "2/2",
+        "ms05_money_rounding": "2/2",
+        "ms06_bulk_threshold": "2/2"
+      }
+    },
+    "v1": {
+      "label": "+ 原生 function calling",
+      "runs": 12,
+      "successes": 12,
+      "success_rate": 1.0,
+      "tasks": 6,
+      "tasks_solved_every_run": 6,
+      "tasks_solved_any_run": 6,
+      "avg_steps": 4.08,
+      "avg_llm_calls": 7.08,
+      "avg_prompt_tokens": 30358.75,
+      "avg_completion_tokens": 1046.25,
+      "avg_total_tokens": 31405.0,
+      "avg_wall_seconds": 110.83,
+      "format_errors": 0,
+      "no_tool_replies": 0,
+      "aborted_by_format": 0,
+      "verify_send_backs": 0,
+      "runs_rescued_by_verify": 0,
+      "errors": 0,
+      "stop_reasons": {
+        "finish": 12
+      },
+      "by_category": {
+        "多处修复": 1.0,
+        "字符串格式": 1.0,
+        "数值精度": 1.0,
+        "正则与转义": 1.0,
+        "跨模块定位": 1.0,
+        "逻辑错误": 1.0
+      },
+      "by_task": {
+        "ms01_discount_before_tax": "2/2",
+        "ms02_parser_regex": "2/2",
+        "ms03_invoice_format": "2/2",
+        "ms04_inventory_two_bugs": "2/2",
+        "ms05_money_rounding": "2/2",
+        "ms06_bulk_threshold": "2/2"
+      }
+    },
+    "v2": {
+      "label": "+ 测试驱动验证（完整版）",
+      "runs": 12,
+      "successes": 12,
+      "success_rate": 1.0,
+      "tasks": 6,
+      "tasks_solved_every_run": 6,
+      "tasks_solved_any_run": 6,
+      "avg_steps": 4.42,
+      "avg_llm_calls": 7.42,
+      "avg_prompt_tokens": 33665.33,
+      "avg_completion_tokens": 1176.5,
+      "avg_total_tokens": 34841.83,
+      "avg_wall_seconds": 127.46,
+      "format_errors": 0,
+      "no_tool_replies": 0,
+      "aborted_by_format": 0,
+      "verify_send_backs": 0,
+      "runs_rescued_by_verify": 0,
+      "errors": 0,
+      "stop_reasons": {
+        "finish": 12
+      },
+      "by_category": {
+        "多处修复": 1.0,
+        "字符串格式": 1.0,
+        "数值精度": 1.0,
+        "正则与转义": 1.0,
+        "跨模块定位": 1.0,
+        "逻辑错误": 1.0
+      },
+      "by_task": {
+        "ms01_discount_before_tax": "2/2",
+        "ms02_parser_regex": "2/2",
+        "ms03_invoice_format": "2/2",
+        "ms04_inventory_two_bugs": "2/2",
+        "ms05_money_rounding": "2/2",
+        "ms06_bulk_threshold": "2/2"
+      }
+    }
+  }
+}

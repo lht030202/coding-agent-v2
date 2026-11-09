@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "started_at": "2026-11-09T13:01:49",
+    "finished_at": "2026-11-09T13:02:43",
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash",
+    "temperature": 0.1,
+    "extra_body": {
+      "enable_thinking": false
+    },
+    "max_steps": 10,
+    "max_verify_retries": 2,
+    "tasks": 1,
+    "task_breakdown": "大文件定位 1",
+    "runs_per_task": 3,
+    "total_runs": 3,
+    "configs": {
+      "v2": {
+        "tool_mode": "native",
+        "verify_mode": "tests",
+        "label": "+ 测试驱动验证（完整版）"
+      }
+    }
+  },
+  "configs": {
+    "v2": {
+      "label": "+ 测试驱动验证（完整版）",
+      "runs": 3,
+      "successes": 3,
+      "success_rate": 1.0,
+      "tasks": 1,
+      "tasks_solved_every_run": 1,
+      "tasks_solved_any_run": 1,
+      "avg_steps": 4.0,
+      "avg_llm_calls": 7.0,
+      "avg_prompt_tokens": 29890.33,
+      "avg_completion_tokens": 1305.0,
+      "avg_total_tokens": 31195.33,
+      "avg_wall_seconds": 49.76,
+      "format_errors": 0,
+      "no_tool_replies": 0,
+      "aborted_by_format": 0,
+      "verify_send_backs": 0,
+      "runs_rescued_by_verify": 0,
+      "errors": 0,
+      "stop_reasons": {
+        "finish": 3
+      },
+      "by_category": {
+        "大文件定位": 1.0
+      },
+      "by_task": {
+        "ms08_catalog_price_range": "3/3"
+      }
+    }
+  }
+}

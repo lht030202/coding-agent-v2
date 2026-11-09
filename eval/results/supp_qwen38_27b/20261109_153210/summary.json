@@ -1,0 +1,187 @@
+{
+  "meta": {
+    "started_at": "2026-11-09T15:32:10",
+    "finished_at": "2026-11-09T15:48:59",
+    "model": "Qwen/Qwen3.8-27B",
+    "temperature": 0.1,
+    "extra_body": {
+      "enable_thinking": false
+    },
+    "max_steps": 10,
+    "max_verify_retries": 2,
+    "tasks": 12,
+    "task_breakdown": "函数实现 4，功能实现 1，多处修复 1，大文件定位 1，字符串格式 1，数值精度 1，正则与转义 1，跨模块定位 1，逻辑错误 1",
+    "runs_per_task": 3,
+    "total_runs": 108,
+    "configs": {
+      "v0": {
+        "tool_mode": "json",
+        "verify_mode": "rule",
+        "label": "原版：JSON 文本解析 + 规则验证"
+      },
+      "v1": {
+        "tool_mode": "native",
+        "verify_mode": "rule",
+        "label": "+ 原生 function calling"
+      },
+      "v2": {
+        "tool_mode": "native",
+        "verify_mode": "tests",
+        "label": "+ 测试驱动验证（完整版）"
+      }
+    }
+  },
+  "configs": {
+    "v0": {
+      "label": "原版：JSON 文本解析 + 规则验证",
+      "runs": 36,
+      "successes": 7,
+      "success_rate": 0.1944,
+      "tasks": 12,
+      "tasks_solved_every_run": 0,
+      "tasks_solved_any_run": 7,
+      "avg_steps": 0.92,
+      "avg_llm_calls": 1.5,
+      "avg_prompt_tokens": 5968.56,
+      "avg_completion_tokens": 219.06,
+      "avg_total_tokens": 6187.61,
+      "avg_wall_seconds": 17.3,
+      "format_errors": 1,
+      "no_tool_replies": 0,
+      "aborted_by_format": 1,
+      "verify_send_backs": 0,
+      "runs_rescued_by_verify": 0,
+      "errors": 29,
+      "stop_reasons": {
+        "finish": 6,
+        "parse_error": 1,
+        "error": 29
+      },
+      "by_category": {
+        "函数实现": 0.0,
+        "功能实现": 0.3333,
+        "多处修复": 0.3333,
+        "大文件定位": 0.0,
+        "字符串格式": 0.3333,
+        "数值精度": 0.3333,
+        "正则与转义": 0.3333,
+        "跨模块定位": 0.3333,
+        "逻辑错误": 0.3333
+      },
+      "by_task": {
+        "fn01_make_palindrome": "0/3",
+        "fn02_remove_duplicates": "0/3",
+        "fn03_find_zero": "0/3",
+        "fn04_decode_cyclic": "0/3",
+        "ms01_discount_before_tax": "1/3",
+        "ms02_parser_regex": "1/3",
+        "ms03_invoice_format": "1/3",
+        "ms04_inventory_two_bugs": "1/3",
+        "ms05_money_rounding": "1/3",
+        "ms06_bulk_threshold": "1/3",
+        "ms07_bogo_coupon": "1/3",
+        "ms08_catalog_price_range": "0/3"
+      }
+    },
+    "v1": {
+      "label": "+ 原生 function calling",
+      "runs": 36,
+      "successes": 7,
+      "success_rate": 0.1944,
+      "tasks": 12,
+      "tasks_solved_every_run": 0,
+      "tasks_solved_any_run": 7,
+      "avg_steps": 0.83,
+      "avg_llm_calls": 1.42,
+      "avg_prompt_tokens": 6254.39,
+      "avg_completion_tokens": 205.06,
+      "avg_total_tokens": 6459.44,
+      "avg_wall_seconds": 17.27,
+      "format_errors": 0,
+      "no_tool_replies": 0,
+      "aborted_by_format": 0,
+      "verify_send_backs": 0,
+      "runs_rescued_by_verify": 0,
+      "errors": 29,
+      "stop_reasons": {
+        "finish": 7,
+        "error": 29
+      },
+      "by_category": {
+        "函数实现": 0.0,
+        "功能实现": 0.3333,
+        "多处修复": 0.3333,
+        "大文件定位": 0.0,
+        "字符串格式": 0.3333,
+        "数值精度": 0.3333,
+        "正则与转义": 0.3333,
+        "跨模块定位": 0.3333,
+        "逻辑错误": 0.3333
+      },
+      "by_task": {
+        "fn01_make_palindrome": "0/3",
+        "fn02_remove_duplicates": "0/3",
+        "fn03_find_zero": "0/3",
+        "fn04_decode_cyclic": "0/3",
+        "ms01_discount_before_tax": "1/3",
+        "ms02_parser_regex": "1/3",
+        "ms03_invoice_format": "1/3",
+        "ms04_inventory_two_bugs": "1/3",
+        "ms05_money_rounding": "1/3",
+        "ms06_bulk_threshold": "1/3",
+        "ms07_bogo_coupon": "1/3",
+        "ms08_catalog_price_range": "0/3"
+      }
+    },
+    "v2": {
+      "label": "+ 测试驱动验证（完整版）",
+      "runs": 36,
+      "successes": 6,
+      "success_rate": 0.1667,
+      "tasks": 12,
+      "tasks_solved_every_run": 0,
+      "tasks_solved_any_run": 6,
+      "avg_steps": 0.67,
+      "avg_llm_calls": 1.17,
+      "avg_prompt_tokens": 5184.14,
+      "avg_completion_tokens": 200.22,
+      "avg_total_tokens": 5384.36,
+      "avg_wall_seconds": 19.82,
+      "format_errors": 0,
+      "no_tool_replies": 0,
+      "aborted_by_format": 0,
+      "verify_send_backs": 0,
+      "runs_rescued_by_verify": 0,
+      "errors": 30,
+      "stop_reasons": {
+        "finish": 6,
+        "error": 30
+      },
+      "by_category": {
+        "函数实现": 0.0,
+        "功能实现": 0.0,
+        "多处修复": 0.3333,
+        "大文件定位": 0.0,
+        "字符串格式": 0.3333,
+        "数值精度": 0.3333,
+        "正则与转义": 0.3333,
+        "跨模块定位": 0.3333,
+        "逻辑错误": 0.3333
+      },
+      "by_task": {
+        "fn01_make_palindrome": "0/3",
+        "fn02_remove_duplicates": "0/3",
+        "fn03_find_zero": "0/3",
+        "fn04_decode_cyclic": "0/3",
+        "ms01_discount_before_tax": "1/3",
+        "ms02_parser_regex": "1/3",
+        "ms03_invoice_format": "1/3",
+        "ms04_inventory_two_bugs": "1/3",
+        "ms05_money_rounding": "1/3",
+        "ms06_bulk_threshold": "1/3",
+        "ms07_bogo_coupon": "0/3",
+        "ms08_catalog_price_range": "0/3"
+      }
+    }
+  }
+}
