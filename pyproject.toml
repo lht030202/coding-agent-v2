@@ -14,6 +14,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "pytest>=8.0.0",
+  "ruff>=0.8.6",
 ]
 
 [project.scripts]
@@ -26,3 +27,8 @@ where = ["src"]
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-p no:cacheprovider"
+
+[tool.ruff]
+target-version = "py310"
+# Generated task repositories carry injected bugs on purpose, unused imports among them.
+extend-exclude = ["eval/tasks"]

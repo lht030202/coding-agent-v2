@@ -1,5 +1,7 @@
 # Coding Agent v2
 
+[![CI](https://github.com/lht030202/coding-agent-v2/actions/workflows/ci.yml/badge.svg)](https://github.com/lht030202/coding-agent-v2/actions/workflows/ci.yml)
+
 一个面向代码仓库的 Coding Agent：给它一个仓库和一句任务描述，它会自己读代码、改文件、跑测试，最后审查并总结。
 
 本项目基于开源项目 [Coding-Agent-SFT-Lab](https://github.com/shuailishuaiqiYangLiu/Coding-Agent-SFT-Lab) 二次开发。原项目包含 Agent 和 SFT 训练两部分；本项目只保留 Agent 部分，重做了**工具调用协议、验证闭环、安全边界和评测体系**，并补上了单元测试。逐条改动见 [docs/改进说明.md](docs/改进说明.md)。
@@ -102,7 +104,7 @@
 | 模型调用 | 只返回文本，thinking 默认开启 | 统一入口：供应商扩展参数配置化（例如关闭 thinking）、记录每次调用的 token 和耗时、超时与指数退避重试 |
 | 安全 | 白名单含 `conda run`（可执行任意命令）；按前缀匹配；黑名单大小写失效；能读 `.env`；测试进程继承 API key | 按 token 精确匹配白名单、拒绝 shell 操作符、禁止读写密钥文件、运行测试前清除密钥环境变量 |
 | 评测 | 没有任务成功率；批量运行的 `ok` 只表示程序没报错 | 12 个任务、3 种配置逐项叠加的对比实验；恢复原始测试 + 隐藏测试判定成败 |
-| 工程质量 | 没有单元测试 | 43 个单元测试，用按剧本回复的假模型覆盖 Agent 主循环，不调用真实模型 |
+| 工程质量 | 没有单元测试 | 43 个单元测试，用按剧本回复的假模型覆盖 Agent 主循环，不调用真实模型；GitHub Actions 在 Python 3.10 和 3.12 上自动运行代码检查和全部测试 |
 | 可观测性 | 轨迹里没有 token 和耗时 | 每次模型调用记录 `llm_call` 事件，任务结束记录 `run_summary`，`stats` 命令汇总 |
 
 ---
@@ -211,6 +213,7 @@ Agent 会直接修改示例仓库。想再跑一次，先用 `git checkout examp
 .
 ├── src/cc_agent/          # Agent 源码
 ├── tests/                 # 单元测试（假模型，不调用真实接口）
+├── .github/workflows/     # CI：ruff 代码检查 + 单元测试
 ├── eval/
 │   ├── base_repos/        # 评测用的正确代码库（minishop）和函数题
 │   ├── tasks/             # 由 build_tasks.py 生成的任务仓库
